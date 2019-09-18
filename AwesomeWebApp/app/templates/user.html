@@ -1,0 +1,45 @@
+﻿<!--extends base layout-->
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+    <div class="row no-gutters">
+        <div class="col col-auto d-flex flex-column justify-content-center">
+            <img class="card-img my-1" src="{{user.avatar}}" alt="" style="height:150px;width:150px"/>
+            {% if g.user.is_authenticated==False %}
+            {% elif user==g.user %}
+            <a class="btn btn-outline-primary" href="{{url_for('edit',nickname=g.user.nickname)}}">edit</a>
+            {% elif g.user.is_following(user) %}
+            <a class="btn btn-outline-primary" href="#">follow</a>
+            {% else %}
+            <a class="btn btn-outline-primary" href="#">unfollow</a>
+            {% endif %}
+        </div>
+        <div class="col d-flex flex-column">
+            <div class="card-body d-flex flex-column py-1">
+                <span class="card-title text-primary mb-2 h5">
+                    User: {{user.nickname}}
+                </span>
+                <div class="card-text">
+                    <span class="text-danger">email: </span>{{user.email}}<br />
+                    <span class="text-primary">tel number: </span>{{user.tel_num}}<br />
+                    <span class="text-success">about me: </span>
+                    {% if user.about_me %}{{user.about_me}}{% else %}This guy is a lazy dog, leaving nothing here.{% endif %}
+                </div>
+                {% if user.last_seen %}
+                <div class="mt-auto d-flex flex-row justify-content-between">
+                    <small class="card-text text-muted">followed: num</small>
+                    <small class="card-text text-muted">follower: num</small>
+                    <small class="card-text text-muted">last seen on: {{momentjs(user.last_seen).calendar()}}</small>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    'use strict'
+    $(function () {
+        $('#user').addClass('active');  //导航栏
+    });
+</script>
+{% endblock %}

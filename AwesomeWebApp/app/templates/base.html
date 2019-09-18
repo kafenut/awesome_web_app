@@ -1,0 +1,156 @@
+﻿<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no" /> <!--bootstrap-->
+    <link href="/static/css/bootstrap.css" rel="stylesheet" /><!--bootstrap's css-->
+    <script src="/static/js/jquery.js"></script> <!--https://code.jquery.com/jquery-3.4.1.js-->
+    <script src="/static/js/moment.min.js"></script>
+    <script defer src="/static/js/all.min.js"></script> <!--font awesome-->
+    <script src="/static/js/md5.js"></script>
+</head>
+<body style="margin-top:43px">
+    <nav class="navbar fixed-top navbar-expand-md navbar-light" style="background-color:#e3f2fd">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#Navbar1">
+            <i class="fas fa-bars"></i>
+        </button>
+        <a class="navbar-brand d-none d-md-inline" href="#">
+            <img src="/static/img/mouse.png" height="40" width="40" alt="mouse"/>
+        </a>
+        {% if g.user.is_authenticated %}
+        <a class="nav-link d-md-none ml-auto" href="{{url_for('user',nickname=g.user.nickname)}}">Hi, {{g.user.nickname}}</a>
+        {% endif %}
+        
+        <div class="collapse navbar-collapse" id="Navbar1">  <!--navbar-collapse-->
+            <ul class="navbar-nav mr-auto" id="nav_list">
+                <li class="nav-item" id="index">
+                    <a class="nav-link" href="{{url_for('index')}}">Index</a>
+                </li>
+                {% if g.user.is_authenticated %}
+                <li class="nav-item" id="user">
+                    <a class="nav-link" href="{{url_for('user',nickname=g.user.nickname)}}">user</a>
+                </li>
+                <li class="nav-item" id="edit">
+                    <a class="nav-link" href="{{url_for('edit',nickname=g.user.nickname)}}">edit</a>
+                </li>
+                <li class="nav-item" id="blogs">
+                    <a class="nav-link" href="{{url_for('blogs',nickname=g.user.nickname)}}">blogs</a>
+                </li>
+                <li class="nav-item" id="write_blog">
+                    <a class="nav-link" href="{{url_for('write_blog')}}">write blog</a>
+                </li>
+                {% else %}
+                <li class="nav-item" id="register">
+                    <a class="nav-link" href="{{url_for('register')}}">register</a>
+                </li>
+                {% endif %}
+            </ul>
+            {% if g.user.is_authenticated %}
+            <a class="nav-link mx-2 d-none d-md-inline" href="{{url_for('user',nickname=g.user.nickname)}}">Hi, {{g.user.nickname}}</a>
+            <a class="btn btn-outline-success" href="{{url_for('logout')}}">Logout</a>
+            {% else %}
+            <button type="button" class="btn btn-outline-success" data-target="#LoginModal" data-toggle="modal">Login</button>
+            {% endif %}
+        </div>
+    </nav>
+    
+    <div class="modal fade" id="LoginModal" tabindex="-1">  <!--login modal-->
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Login</h4>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <i class="fas fa-times-circle"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form name="Login" id="login_form" novalidate>
+                        <div class="form-group">
+                            <label for="email">Email:</label>
+                            <input type="email" class="form-control" name="email" id="login_email" placeholder="Input your email..." />
+                        </div>
+                        <div class="form-group">
+                            <label for="passwd">Password:</label>
+                            <input type="password" class="form-control" name="passwd" id="login_passwd" placeholder="Input your password" />
+                        </div>
+                        <div class="d-flex flex-row justify-content-end">
+                            <small class="form-text text-danger m-2" id="login_text"></small>
+                            <button type="submit" class="btn btn-outline-primary">Login</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        'use strict'
+        $(function () {
+            $('#login_form').submit(function (event) {  //use ajax to sumbit a login form
+                event.stopPropagation();
+                event.preventDefault();
+                var tip = $('#login_text');
+                tip.text('');
+                var email = $('#login_email').val();
+                var passwd = $('#login_passwd').val();
+                if (!email || !passwd) {
+                    tip.text('Please fill in the form first!');
+                    return false;
+                }
+                var raw_data = {
+                    title: 'login',
+                    email:email,
+                    passwd:$.md5(passwd)
+                }
+                var data = JSON.stringify(raw_data);
+                $.ajax({
+                    url: '/login',
+                    method: 'POST',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: data
+                }).done(function (data) {
+                    tip.text(data.text)
+                    if (data.success === true) {
+                        window.location.reload();
+                    }
+                }).fail(function (xhr, status) {
+                    tip.text('fail: ' + xhr.status + ',reason: ' + status);
+                });
+            });
+        });
+    </script>
+    
+    {% with messages =get_flashed_messages() %}  <!--flash messages-->
+    {% if messages %}
+    <div class="alert alert-warning alert-dismissable fade show mb-1" id="alert">
+        {% for message in messages %}
+        {{message}}
+        {% endfor %}
+        <button type="button" class="close" data-dismiss="alert">
+            <span>&times;</span>
+        </button>
+    </div>
+    {% endif %}
+    {% endwith %}
+    
+    <div class="container w-100 w-md-80">   <!--base layout-->
+        <div class="row">
+            <div class="col col-md-8">
+                {% block content %}{% endblock %}
+            </div>
+            <div class="col-0 col-md-4">
+                <hr />
+                {% if g.user.is_authenticated %}
+                <a href="{{url_for('write_blog')}}">write a post now!</a><hr />
+                {% endif %}
+                <a href="{{url_for('register')}}">Have no account? Register now !</a><hr />
+                <a href="#">See kafenut's learning notes.</a><hr />
+                <a href="#">See how the site was built.</a><hr />
+                <a href="{{url_for('api')}}">Learn about our api.</a>
+            </div>
+        </div>
+    </div>
+    <script src="/static/js/popper.min.js"></script>
+    <script src="/static/js/bootstrap.js"></script>
+</body>
+</html>

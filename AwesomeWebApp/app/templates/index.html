@@ -1,0 +1,21 @@
+﻿<!--extends base layout-->
+{% extends "base.html" %}
+{% block content %}
+
+{% if blogs.all() %}
+    {% for blog in blogs %}
+        {% include "blog.html"%}
+    {% endfor %}
+{% else %}
+    <hr />
+    <h4 class="text-danger">Seems like your followers are all lazy dogs...</h4>
+{% endif %}
+
+<script>
+    'use strict'
+    $(function () {
+        $('#index').addClass('active');  //导航栏
+    });
+</script>
+
+{% endblock %}

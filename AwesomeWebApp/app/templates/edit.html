@@ -1,0 +1,101 @@
+﻿<!--extends base layout-->
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+    <div class="row">
+        <div class="col-3">
+            <img class="card-img my-1" src="{{user.get_avatar(150)}}" alt=""/>
+            <div class="card-text text-center text-primary h4">{{user.nickname}}</div>
+        </div>
+        <div class="col-9 d-flex flex-column">           
+            <span class="text-success h4 mt-1">about me: </span>
+            {% if user.about_me %}{{user.about_me}}{% else %}This guy is a lazy dog, leaving nothing here.{% endif %}
+            <div class="mt-auto d-flex flex-row justify-content-between px-1">
+                <small class="card-text text-muted">followed: num</small>
+                <small class="card-text text-muted">follower: num</small>
+                <small class="card-text text-muted">last seen on: {{momentjs(user.last_seen).calendar()}}</small>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-3">     
+        <div class="text-primary h4 mt-1" id="preview_text" style="display:none;">Preview:</div>
+        <div id="img_preview" style="width:100%;height:200px;background-repeat:no-repeat;background-size:100%;"></div>
+    </div>
+    <div class="col-9">
+        <form class="mt-1" method="post" enctype="multipart/form-data">
+            <div class="form-group row">
+                <label for="nickname" class="col-3 col-form-label text-primary">Nickname</label>
+                <div class="col-9">
+                    <input type="text" class="form-control-plaintext" id="nickname" value="{{user.nickname}}" readonly>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="email" class="col-3 col-form-label text-primary">Email <a href="#" class="edit_link"><i class="fas fa-pen"></i></a></label>
+                <div class="col-9">
+                    <input type="text" class="form-control-plaintext" id="email" name="email" value="{{user.email}}" readonly>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="tel_num" class="col-3 col-form-label text-primary">Tel number <a href="#" class="edit_link"><i class="fas fa-pen"></i></a></label>
+                <div class="col-9">
+                    <input type="text" class="form-control-plaintext" id="tel_num" name="tel_num" value="{{user.tel_num}}" readonly />
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="about_me" class="col-3 col-form-label text-primary">About me <a href="#" class="edit_link"><i class="fas fa-pen"></i></a></label>
+                <div class="col-9">
+                    <textarea type="text" class="form-control" id="about_me" name="about_me" readonly>{{user.about_me}}</textarea>
+                </div>
+            </div>
+            <div class="custom-file">
+                <input type="file" class="custom-file-input" id="avatar" name="avatar">
+                <label class="custom-file-label" for="avatar" id="avatar_label">Choose file</label>
+                <small class="text-danger text-end" id="avatar_text"></small>
+            </div>
+            <div class="d-flex flex-row justify-content-end mt-2">
+                <button type="submit" class="btn btn-outline-primary">update</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    'use strict';
+    $(function () {      
+        $('#edit').addClass('active');
+
+        $('.edit_link').click(function (event) {    //To activate edit
+            event.preventDefault();
+            $(this).parent().next().children().removeAttr('readonly').addClass('form-control').removeClass('form-control-plaintext');
+        });
+
+        $('#avatar').change(function (event) {
+            var preview = $('#img_preview');
+            var avatar_text = $('#avatar_text');
+            var label = $('#avatar_label');     
+            preview.css('backgroundImage', '');
+            avatar_text.text('');
+            if (!$(this).val()) {               
+                avatar_text.text('No file is selected!');
+                return;
+            }
+            var file = this.files[0];
+            label.text(file.name);
+            if (file.type !== 'image/jpeg' && file.type !== 'image/png') {
+                avatar_text.text('Invalid image file!');
+                return;
+            }
+
+            $('#preview_text').show();
+            var reader = new FileReader();
+            reader.onload = function (event) {
+                var data = event.target.result;
+                preview.css('backgroundImage', 'url(' + data + ')');
+            };
+            reader.readAsDataURL(file);
+        });
+    });
+</script>
+{% endblock %}

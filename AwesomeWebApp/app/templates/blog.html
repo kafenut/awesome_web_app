@@ -1,0 +1,31 @@
+﻿<div class="card m-0" style="height:150px;">
+    <div class="row no-gutters">
+        <div class="col-auto d-flex flex-column justify-content-center">
+            <img src="{{blog.author.avatar1(110)}}" alt="" class="card-img m-1" style="height:110px;width:110px;" />
+            <div class="row">
+                <a class="card-link m-auto" href="{{url_for('user',nickname=blog.author.nickname)}}">{{blog.author.nickname}}</a>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card-body py-1 d-flex flex-column" style="height:149px;">
+                <a class="card-title h5 mb-1" href="{{url_for('blog_page')}}?id={{blog.id}}">{{blog.title}}</a>
+                <pre class="card-text text-break mb-0">{{blog.body}}</pre>
+                <div class="d-flex flex-row mt-auto justify-content-between">
+                    <div class="like_link" data-id="{{blog.id}}" data-like="like" data-type="blog">
+                        <span>{{blog.like_num}} </span>
+                        <a href="#">
+                            <i class="far fa-heart"></i>
+                        </a>
+                    </div>
+                    <div>
+                        <span class="">{{blog.cmmts.count()+blog.sub_cmmts.count()}} </span>
+                        <a href="{{url_for('blog_page')}}?id={{blog.id}}">
+                            <i class="far fa-comment-dots"></i>
+                        </a>
+                    </div>
+                    <div class="card-text text-muted text-right"><small><span class="d-none d-md-inline">Uploaded on: </span>{{momentjs(blog.upload_time).calendar()}}</small></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
